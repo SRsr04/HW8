@@ -1,31 +1,27 @@
 from datetime import date, timedelta
 
-start_date = date.today()
-end_date = start_date + timedelta(7)
-
-def get_period(start_date: date, days: int):
-    result = {}
-    for _ in range(days + 1):
-        result[start_date.day, start_date.month] = start_date.year
-        start_date += timedelta(1)
-    return result
-
 def get_bd(users: list) -> list:
-    start_date = date(2023, 12, 29)
-    period = get_period(start_date, 7)
+    start_date = date.today()
+    end_date = start_date + timedelta(days=7) 
+    birthday_dict = {}
 
     for user in users:
-        bd: date = user["birthday"]
-        date_bd = (bd.day, bd.month)
-        if date_bd in list(period):
-            print(user["name"])
-            print(period[date_bd])
-        
-if __name__ == "__main__":
-    users = [{"name": "Bill", "birthday": date(1990, 12, 30)},
-             {"name": "Marry", "birthday": date(2000, 1, 2)},
-             ]
-    
-    get_bd(users)
+        bd = user["birthday"]
+        current_year = start_date.year
+        if start_date > bd.replace(year=current_year):
+            bd = bd.replace(year=current_year+1)
+        day_of_week = bd.strftime("%A")
+       
+        if start_date <= bd < end_date:
+            if day_of_week not in ["Saturday", "Sunday"]:
+                if day_of_week not in birthday_dict:
+                    birthday_dict[day_of_week] = []
+                birthday_dict[day_of_week].append(user["name"])
+            else:
+                next_monday = start_date + timedelta(days=(7 - start_date.weekday()))
+                day_of_week = next_monday.strftime("%A")
+                if day_of_week not in birthday_dict:
+                    birthday_dict[day_of_week] = []
+                birthday_dict[day_of_week].append(user["name"])
 
-    #print(get_period(date(2023, 12, 29), 7))
+    return birthday_dict
